@@ -40,7 +40,7 @@ for(const larghezza of [1280,390,320]) {
   await p.getByRole('button',{name:nome,exact:true}).click();
   assert.equal(await p.locator('#pannello-'+id).isVisible(),true);
   assert.equal(await p.locator('.cruscotto-pannello:visible').count(),1);
-  assert.equal(await p.locator('.cruscotto-card:visible').count(),3);
+  assert.equal(await p.locator('.cruscotto-card:visible').count(),id==='economia'?10:3);
  }
  for(const tipo of ['settimana','mese','anno','personalizzato']) {
   await p.locator('#periodo-tipo').selectOption(tipo);
@@ -51,7 +51,7 @@ for(const larghezza of [1280,390,320]) {
  assert.match(await p.locator('#stato-periodo').innerText(),/Completa il periodo/);
  await p.locator('#periodo-al').fill('2026-11-11');
  await p.locator('#periodo-confronto').selectOption('anno-precedente');
- assert.match(await p.locator('#stato-periodo').innerText(),/non ancora attivi/);
+ assert.match(await p.locator('#stato-periodo').innerText(),/Periodo /);
  assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,'overflow orizzontale a '+larghezza);
  await p.getByRole('button',{name:'Catalogo',exact:true}).click();
  assert.equal(await p.locator('#search-filter').inputValue(),'Libro sintetico');

@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import vm from 'node:vm';
 import * as comuni from '../src/js/dati-commerciali.mjs';
+import { corrisponde } from '../src/js/motore-economico.mjs';
 
 async function applicazione(copia) {
     let sorgente = await readFile(new URL('../src/js/app.js', import.meta.url), 'utf8');
@@ -13,6 +14,7 @@ async function applicazione(copia) {
         isConnected: true, querySelector: selettore => document.querySelector(selettore),
         addEventListener() {}, remove() {}, classList: { add() {}, remove() {} } });
     const document = {
+        addEventListener() {}, dispatchEvent() {},
         querySelector(selettore) {
             if (!elementi.has(selettore)) elementi.set(selettore, elemento());
             return elementi.get(selettore);
@@ -21,7 +23,7 @@ async function applicazione(copia) {
         createElement() { const nodo = elemento(); overlay.push(nodo); return nodo; },
         body: { appendChild() {} }
     };
-    const contesto = vm.createContext({ ...comuni, document, console,
+    const contesto = vm.createContext({ ...comuni, corrisponde, document, console, CustomEvent: class { constructor(nome, dati) { this.detail=dati?.detail; } },
         initializeApp() {}, getFirestore() {}, collection() {},
         updateDoc: async (riferimento, dati) => scritture.push({ riferimento, dati }),
         addDoc() { throw new Error('Creazione inattesa'); }, doc: (...args) => args,

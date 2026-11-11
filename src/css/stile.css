@@ -608,3 +608,22 @@ footer {
     .vista-nav button, .cruscotto-nav button { flex: 1 1 auto; }
     .controlli-periodo label { flex-basis: 100%; }
 }
+
+#indicatori-economia { margin-bottom: 20px; }
+#indicatori-economia article > strong { display: block; font-size: 1.5rem; margin-top: 12px; }
+#copertura-economia, #filtro-economico { background: #eef3f7; padding: 16px; border-radius: 8px; line-height: 1.5; }
+#filtro-economico label { display: inline-flex; flex-direction: column; gap: 6px; margin: 8px; }
+#filtro-economico input, #filtro-economico select, #filtro-economico button { min-height: 44px; max-width: 100%; }
+.barre-economiche { max-height: 420px; overflow: auto; padding: 4px; }
+.barra-riga { display: grid; gap: 6px; width: 100%; min-height: 66px; border: 1px solid #c5cdd5; border-radius: 6px; padding: 10px; margin-bottom: 8px; text-align: left; background: #fff; color: #243746; cursor: pointer; font: inherit; }
+.barra-riga:hover { background: #eef3f7; }
+.barra-pista { display: block; height: 12px; background: #edf0f2; }
+.barra-valore { display: block; height: 100%; background: #176da1; }
+.barra-valore.negativa { background: #a32936; }
+.grafico-economico p, .barra-riga span, .barra-riga strong { overflow-wrap: anywhere; }
+@media(max-width:600px) { #filtro-economico label { display: flex; } }
+.barra-pista { position: relative; }
+.barra-pista::after { content: ''; position: absolute; left: 50%; top: -2px; bottom: -2px; border-left: 1px solid #596b7a; }
+.barra-valore { position: absolute; left: 50%; }
+.barra-valore.negativa { left: auto; right: 50%; }
+.grafico-economico select { width: 100%; min-height: 44px; margin: 8px 0; font: inherit; }

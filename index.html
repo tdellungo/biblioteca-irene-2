@@ -27,6 +27,7 @@
             <button type="button" data-vista="cruscotto" aria-controls="vista-cruscotto" aria-pressed="false">Cruscotto</button>
         </nav>
         <div id="vista-catalogo">
+            <div id="filtro-economico" hidden></div>
 
         <section class="stats">
 
@@ -117,7 +118,7 @@
         </div>
         <section id="vista-cruscotto" class="cruscotto" hidden aria-labelledby="titolo-cruscotto">
             <h2 id="titolo-cruscotto" tabindex="-1">Cruscotto</h2>
-            <p>Struttura in preparazione: indicatori, grafici e suggerimenti non sono ancora disponibili. Nessun dato economico è calcolato in questa sezione.</p>
+            <p>Economia utilizza le copie caricate dal catalogo. Magazzino e Opportunità restano in preparazione.</p>
             <nav class="cruscotto-nav" aria-label="Sezioni del cruscotto">
                 <button type="button" data-pannello="economia" aria-controls="pannello-economia" aria-pressed="true">Economia</button>
                 <button type="button" data-pannello="magazzino" aria-controls="pannello-magazzino" aria-pressed="false">Magazzino</button>
@@ -147,23 +148,10 @@
             </form>
             <section id="pannello-economia" class="cruscotto-pannello" aria-labelledby="titolo-economia">
                 <h3 id="titolo-economia">Economia</h3>
-                <div class="cruscotto-griglia">
-                    <article class="cruscotto-card" aria-labelledby="grafico-economia-0">
-                        <h4 id="grafico-economia-0">Ricavi e acquisti</h4>
-                        <p>Confronto dei movimenti economici del periodo.</p>
-                        <div class="grafico-futuro"><span>Grafico non ancora disponibile</span></div>
-                    </article>
-                    <article class="cruscotto-card" aria-labelledby="grafico-economia-1">
-                        <h4 id="grafico-economia-1">Margini e ROI</h4>
-                        <p>Indicatori di redditività delle copie cedute.</p>
-                        <div class="grafico-futuro"><span>Grafico non ancora disponibile</span></div>
-                    </article>
-                    <article class="cruscotto-card" aria-labelledby="grafico-economia-2">
-                        <h4 id="grafico-economia-2">Flussi di cassa</h4>
-                        <p>Entrate e uscite, distinte dall’utile lordo realizzato.</p>
-                        <div class="grafico-futuro"><span>Grafico non ancora disponibile</span></div>
-                    </article>
-                </div>
+                <p id="copertura-economia" role="status">In attesa dei dati del catalogo.</p>
+                <p>Margine = ricavi meno costo delle copie cedute. Saldo di cassa = ricavi meno acquisti del periodo; non include un saldo iniziale o spese non registrate.</p>
+                <div id="indicatori-economia" class="cruscotto-griglia"></div>
+                <div id="grafici-economia" class="cruscotto-griglia"></div>
             </section>
             <section id="pannello-magazzino" class="cruscotto-pannello" aria-labelledby="titolo-magazzino" hidden>
                 <h3 id="titolo-magazzino">Magazzino</h3>

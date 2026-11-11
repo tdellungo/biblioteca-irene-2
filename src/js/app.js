@@ -1,3 +1,4 @@
+import { corrisponde } from "./motore-economico.mjs";
 import { apriNuovaCopia } from "./nuova-copia.mjs";
 import { importo, dataCatalogo, dataAcquistoEffettiva, dataCessioneEffettiva, descriviData } from "./dati-commerciali.mjs";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
@@ -27,6 +28,11 @@ const libriCol = collection(db, "libri");
 
 let libri = [];
 let filtro = "all";
+let filtroEconomico = null;
+document.addEventListener('irenus:filtro-economico', evento => {
+    filtroEconomico = evento.detail;
+    mostraLibri();
+});
 
 
 async function caricaLibri() {
@@ -235,6 +241,8 @@ window.diagnosticaDatiEconomici = diagnosticaDatiEconomici;
 
 
 function aggiornaStatistiche() {
+    window.irenusCopie = libri;
+    document.dispatchEvent(new CustomEvent('irenus:catalogo', { detail: libri }));
 
     const totale = libri.length;
 
@@ -310,7 +318,7 @@ function mostraLibri() {
             .toLowerCase();
 
 
-        return passaFiltro && testo.includes(ricerca);
+        return passaFiltro && testo.includes(ricerca) && corrisponde(libro, filtroEconomico);
     });
 
 

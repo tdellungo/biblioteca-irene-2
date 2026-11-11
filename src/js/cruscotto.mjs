@@ -1,4 +1,5 @@
-// Solo navigazione locale: non legge né scrive dati del catalogo o di Firestore.
+// Navigazione e selezione del periodo; nessun accesso diretto a Firestore.
+import { aggiornaEconomia } from "./economia.mjs";
 import { oggiRoma } from './dati-commerciali.mjs';
 
 const viste = document.querySelectorAll('[data-vista]');
@@ -48,5 +49,7 @@ function aggiornaControlli() {
         : 'Completa il periodo con valori validi e una data finale non precedente a quella iniziale. Nessun filtro applicato.';
 }
 form.addEventListener('submit', evento => evento.preventDefault());
-form.addEventListener('input', aggiornaControlli);
-form.addEventListener('change', aggiornaControlli);
+form.addEventListener('input', () => { aggiornaControlli(); aggiornaEconomia(); });
+form.addEventListener('change', () => { aggiornaControlli(); aggiornaEconomia(); });
+
+aggiornaEconomia();
