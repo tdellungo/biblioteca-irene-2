@@ -1,10 +1,13 @@
+import { apriNuovaCopia } from "./nuova-copia.mjs";
+import { importo, dataCatalogo, dataAcquistoEffettiva, dataCessioneEffettiva, descriviData } from "./dati-commerciali.mjs";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
 import {
     getFirestore,
     collection,
     getDocs,
     doc,
-    updateDoc
+    updateDoc,
+    addDoc
 } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -397,7 +400,7 @@ function mostraLibri() {
 
     }).join("");
 }window.chiudiScheda = function() {
-    const overlay = document.querySelector(".scheda-overlay");
+    const overlay = document.querySelector("#scheda-copia");
 
     if (overlay) {
         overlay.remove();
@@ -430,6 +433,10 @@ function mostraLibri() {
         return true;
     });
 }
+// Un solo pannello della copia attivo; gli altri dialoghi restano indipendenti.
+function chiudiFinestreCopia() {
+    document.querySelectorAll('#scheda-copia, #modifica-copia').forEach(finestra => finestra.remove());
+}
 window.mostraScheda = function(id) {
 
     const libro = libri.find(libro => libro.id === id);
@@ -448,13 +455,13 @@ window.mostraScheda = function(id) {
         : [];
 
     const prezzoAcquisto =
-        parseFloat(libro.prezzoAcquisto) || 0;
+        importo(libro.prezzoAcquisto);
 
     const prezzoCessione =
-        parseFloat(libro.prezzoCessione) || 0;
+        importo(libro.prezzoCessione);
 
     const margine =
-        prezzoCessione > 0
+        libro.stato === "ceduto" && prezzoCessione !== null && prezzoAcquisto !== null
             ? prezzoCessione - prezzoAcquisto
             : null;
 
@@ -515,7 +522,7 @@ if (prezziStorici.length >= 2) {
 }
 // Stima manuale inserita dall'utente
 const stimaManuale =
-    parseFloat(libro.stimaValore) || null;
+    importo(libro.stimaValore);
 
 
 // Valore da utilizzare come base
@@ -563,6 +570,8 @@ if (valoreStorico !== null) {
 
     const scheda = document.createElement("div");
 
+    chiudiFinestreCopia();
+    scheda.id = "scheda-copia";
     scheda.className = "scheda-overlay";
 
 
@@ -796,7 +805,7 @@ if (valoreStorico !== null) {
             <strong>Prezzo di acquisto</strong>
             <span>
                 ${
-                    prezzoAcquisto
+                    prezzoAcquisto !== null
                         ? "€" + prezzoAcquisto.toFixed(2)
                         : "—"
                 }
@@ -812,7 +821,7 @@ if (valoreStorico !== null) {
             <strong>Prezzo di cessione</strong>
             <span>
                 ${
-                    prezzoCessione
+                    prezzoCessione !== null
                         ? "€" + prezzoCessione.toFixed(2)
                         : "—"
                 }
@@ -845,20 +854,20 @@ if (valoreStorico !== null) {
 
                     <div>
                         <strong>Data inserimento</strong>
+                        <span>${dataCatalogo(libro.creato)?.split('-').reverse().join('/') || '—'}</span>
+                    </div>
+
+                    <div>
+                        <strong>Data acquisto</strong>
                         <span>
-                            ${
-                                libro.creato
-                                    ? new Date(libro.creato)
-                                        .toLocaleDateString("it-IT")
-                                    : "—"
-                            }
+                            ${descriviData(dataAcquistoEffettiva(libro))}
                         </span>
                     </div>
 
                     <div>
                         <strong>Data cessione</strong>
                         <span>
-                            ${libro.dataCessione || "—"}
+                            ${descriviData(dataCessioneEffettiva(libro))}
                         </span>
                     </div>
 
@@ -930,6 +939,8 @@ window.modificaLibro = function(id) {
 
     const overlay = document.createElement("div");
 
+    chiudiFinestreCopia();
+    overlay.id = "modifica-copia";
     overlay.className = "scheda-overlay";
 
     // TASK 6 - controlla se esistono discrepanze bibliografiche
@@ -1142,7 +1153,7 @@ ${
         id="edit-stimaValore"
         min="0"
         step="0.50"
-        value="${libro.stimaValore || ""}"
+        value="${importo(libro.stimaValore) ?? ""}"
         placeholder="Lascia vuoto se non vuoi stimare">
 </label>
 
@@ -1166,6 +1177,13 @@ ${
                 <div class="form-grid">
 
                     <label>
+                        Data acquisto
+                        <input type="date" id="edit-dataAcquisto"
+                            value="${dataCatalogo(libro.dataAcquisto) || ""}">
+                        <small>${descriviData(dataAcquistoEffettiva(libro))}. La data viene registrata solo se la imposti e salvi.</small>
+                    </label>
+
+                    <label>
                         Prezzo acquisto (€)
 
                         <input
@@ -1173,7 +1191,7 @@ ${
                             min="0"
                             step="0.01"
                             id="edit-prezzoAcquisto"
-                            value="${libro.prezzoAcquisto || ""}">
+                            value="${importo(libro.prezzoAcquisto) ?? ""}">
                     </label>
 
 
@@ -1213,7 +1231,7 @@ ${
                             min="0"
                             step="0.01"
                             id="edit-prezzoCessione"
-                            value="${libro.prezzoCessione || ""}">
+                            value="${importo(libro.prezzoCessione) ?? ""}">
                     </label>
 
 
@@ -1223,7 +1241,8 @@ ${
                         <input
                             type="date"
                             id="edit-dataCessione"
-                            value="${libro.dataCessione || ""}">
+                            value="${dataCatalogo(libro.dataCessione) || ""}">
+                        <small>${descriviData(dataCessioneEffettiva(libro))}</small>
                     </label>
 
 
@@ -1530,6 +1549,8 @@ window.verificaEdizione = function(id) {
 };
 window.anteprimaUniformazioneEdizione = async function() {
 
+    const modulo = document.querySelector('#modifica-copia');
+    if (!modulo) return;
     const dati = window.datiEdizioneDaUniformare;
 
     if (!dati || Object.keys(dati).length === 0) {
@@ -1617,9 +1638,7 @@ window.anteprimaUniformazioneEdizione = async function() {
             `${copieDaUniformare.length} copie uniformate correttamente.`
         );
 
-        document
-            .querySelector(".scheda-overlay")
-            ?.remove();
+        modulo.remove();
 
     } catch (errore) {
 
@@ -1771,68 +1790,88 @@ document.querySelector("#btn-controllo-coerenza")?.addEventListener("click", mos
 
 window.salvaModificaLibro = async function(id) {
 
+    const modulo = document.querySelector('#modifica-copia');
+    if (!modulo) return;
+    const originale = libri.find(libro => libro.id === id);
+    if (!originale) return;
     const dati = {
 
-        titolo: document.querySelector("#edit-titolo").value.trim(),
+        titolo: modulo.querySelector("#edit-titolo").value.trim(),
 
-        autore: document.querySelector("#edit-autore").value.trim(),
+        autore: modulo.querySelector("#edit-autore").value.trim(),
 
-        isbn: document.querySelector("#edit-isbn").value.trim(),
+        isbn: modulo.querySelector("#edit-isbn").value.trim(),
 
-        editore: document.querySelector("#edit-editore").value.trim(),
+        editore: modulo.querySelector("#edit-editore").value.trim(),
 
-        anno: document.querySelector("#edit-anno").value.trim(),
+        anno: modulo.querySelector("#edit-anno").value.trim(),
 
-        edizione: document.querySelector("#edit-edizione").value.trim(),
+        edizione: modulo.querySelector("#edit-edizione").value.trim(),
 
-        ristampa: document.querySelector("#edit-ristampa").value.trim(),
+        ristampa: modulo.querySelector("#edit-ristampa").value.trim(),
 
-        collana: document.querySelector("#edit-collana").value.trim(),
+        collana: modulo.querySelector("#edit-collana").value.trim(),
 
-        lingua: document.querySelector("#edit-lingua").value.trim(),
+        lingua: modulo.querySelector("#edit-lingua").value.trim(),
 
         numeroCopia:
             parseInt(
-                document.querySelector("#edit-numeroCopia").value
+                modulo.querySelector("#edit-numeroCopia").value
             ) || 1,
 
         copertinaRigida:
-            document.querySelector("#edit-copertina").value.trim(),
+            modulo.querySelector("#edit-copertina").value.trim(),
 
         sovracoperta:
-            document.querySelector("#edit-sovracoperta").value.trim(),
+            modulo.querySelector("#edit-sovracoperta").value.trim(),
 
         fasciaEta:
-            document.querySelector("#edit-fasciaEta").value.trim(),
+            modulo.querySelector("#edit-fasciaEta").value.trim(),
 
         condizioni:
-            document.querySelector("#edit-condizioni").value.trim(),
+            modulo.querySelector("#edit-condizioni").value.trim(),
 
         variante:
-            document.querySelector("#edit-variante").value.trim(),
+            modulo.querySelector("#edit-variante").value.trim(),
             stimaValore:
-    parseFloat(
-        document.querySelector("#edit-stimaValore").value
-    ) || null,
+    importo(modulo.querySelector("#edit-stimaValore").value),
 
         note:
-            document.querySelector("#edit-note").value.trim(),
+            modulo.querySelector("#edit-note").value.trim(),
 
         prezzoAcquisto:
-            document.querySelector("#edit-prezzoAcquisto").value,
+            modulo.querySelector("#edit-prezzoAcquisto").value,
 
         stato:
-            document.querySelector("#edit-stato").value,
+            modulo.querySelector("#edit-stato").value,
 
         prezzoCessione:
-            document.querySelector("#edit-prezzoCessione").value,
+            modulo.querySelector("#edit-prezzoCessione").value,
 
         dataCessione:
-            document.querySelector("#edit-dataCessione").value,
+            modulo.querySelector("#edit-dataCessione").value,
 
         canaleCessione:
-            document.querySelector("#edit-canaleCessione").value.trim()
+            modulo.querySelector("#edit-canaleCessione").value.trim()
     };
+
+
+    for (const campo of ['prezzoAcquisto', 'prezzoCessione', 'dataCessione', 'stimaValore']) {
+        const input = modulo.querySelector(`#edit-${campo}`);
+        const iniziale = campo === 'dataCessione'
+            ? dataCatalogo(originale[campo]) || ''
+            : String(importo(originale[campo]) ?? '');
+        if (input.value === iniziale) delete dati[campo];
+    }
+    const inputData = modulo.querySelector('#edit-dataAcquisto');
+    const nuovaData = inputData.value;
+    if (!inputData.validity.valid || (nuovaData && !dataCatalogo(nuovaData))) {
+        alert('Inserisci una data di acquisto valida.');
+        return;
+    }
+    if (nuovaData !== (dataCatalogo(originale.dataAcquisto) || '')) {
+        dati.dataAcquisto = nuovaData;
+    }
 
 
     try {
@@ -1858,9 +1897,8 @@ window.salvaModificaLibro = async function(id) {
         }
 
 
-        document
-            .querySelector(".scheda-overlay")
-            .remove();
+        const ancoraAperto = modulo.isConnected;
+        modulo.remove();
 
 
         aggiornaStatistiche();
@@ -1868,7 +1906,7 @@ window.salvaModificaLibro = async function(id) {
         mostraLibri();
 
 
-        mostraScheda(id);
+        if (ancoraAperto) mostraScheda(id);
 
 
         console.log(
@@ -1917,3 +1955,13 @@ document
 
 
 caricaLibri();
+
+// Nessuna scrittura all'apertura: addDoc è raggiunto solo dall'invio esplicito del modulo.
+document.querySelector('#btn-nuova-copia')?.addEventListener('click', () => {
+    apriNuovaCopia(async dati => {
+        const riferimento = await addDoc(libriCol, dati);
+        libri.push({ ...dati, id: riferimento.id });
+        aggiornaStatistiche();
+        mostraLibri();
+    });
+});
