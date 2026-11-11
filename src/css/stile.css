@@ -1,7 +1,8 @@
-bbody {
+body {
     font-family: Arial, sans-serif;
     margin: 0;
     background-color: #f5f5f5;
+    color: #222;
 }
 
 header {
@@ -10,8 +11,19 @@ header {
     background-color: white;
 }
 
+header h1 {
+    margin-bottom: 8px;
+}
+
+header p {
+    margin-top: 0;
+    color: #666;
+}
+
 main {
     padding: 30px;
+    max-width: 1400px;
+    margin: 0 auto;
 }
 
 section {
@@ -20,21 +32,548 @@ section {
     margin-bottom: 20px;
 }
 
-input {
+
+/* =========================
+   STATISTICHE
+   ========================= */
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 15px;
+}
+
+.stat-card {
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 18px;
+}
+
+.stat-card span {
+    display: block;
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.stat-card strong {
+    font-size: 24px;
+}
+
+
+/* =========================
+   RICERCA E FILTRI
+   ========================= */
+
+.toolbar {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+#search-filter {
     padding: 10px;
-    width: 250px;
+    width: 300px;
+    max-width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+.filters {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
 }
 
 button {
-    padding: 10px 20px;
+    padding: 10px 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background: white;
+    cursor: pointer;
 }
+
+button:hover {
+    background: #eee;
+}
+
+.filter-btn.active {
+    background: #222;
+    color: white;
+    border-color: #222;
+}
+
+
+/* =========================
+   CATALOGO
+   ========================= */
 
 .libro {
     border: 1px solid #ddd;
-    padding: 15px;
+    padding: 18px;
+    margin-bottom: 12px;
+    background: white;
+    border-radius: 8px;
+
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
 }
+
+.libro-info {
+    flex: 1;
+}
+
+.libro h3 {
+    margin-top: 0;
+    margin-bottom: 6px;
+}
+
+.autore {
+    font-weight: bold;
+    color: #555;
+}
+
+.libro-commerciale {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.libro-commerciale span {
+    font-size: 14px;
+    color: #555;
+}
+
+.scheda-btn {
+    background: #222;
+    color: white;
+    border-color: #222;
+}
+
+.scheda-btn:hover {
+    background: #444;
+}
+
+
+/* =========================
+   TAG
+   ========================= */
+
+.tags {
+    margin-top: 10px;
+}
+
+.tag {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+.tag.ceduto {
+    background: #ddd;
+}
+
+.tag.vendita {
+    background: #eee;
+}
+
+
+/* =========================
+   SCHEDA DELLA COPIA
+   ========================= */
+
+.scheda-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+    box-sizing: border-box;
+
+    z-index: 9999;
+}
+
+.scheda {
+    position: relative;
+
+    width: 900px;
+    max-width: 100%;
+    max-height: 90vh;
+
+    overflow-y: auto;
+
+    background: white;
+    border-radius: 10px;
+
+    padding: 30px;
+    box-sizing: border-box;
+
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.scheda-chiudi {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+
+    width: 40px;
+    height: 40px;
+
+    padding: 0;
+
+    font-size: 25px;
+    line-height: 1;
+
+    border-radius: 50%;
+}
+
+.scheda h2 {
+    margin-top: 0;
+    margin-bottom: 5px;
+
+    padding-right: 50px;
+}
+
+.scheda-autore {
+    color: #666;
+    margin-top: 0;
+    margin-bottom: 30px;
+}
+
+.scheda section {
+    padding: 0;
+    margin-bottom: 30px;
+}
+
+.scheda section h3 {
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 8px;
+    margin-bottom: 15px;
+}
+
+.scheda-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.scheda-grid div {
+    border: 1px solid #eee;
+    border-radius: 5px;
+    padding: 12px;
+}
+
+.scheda-grid strong {
+    display: block;
+    font-size: 12px;
+    color: #777;
+    margin-bottom: 5px;
+}
+
+.scheda-grid span {
+    display: block;
+}
+
+.scheda-note {
+    margin-top: 15px;
+    padding: 15px;
+    background: #f7f7f7;
+    border-radius: 5px;
+}
+
+.scheda-note strong {
+    display: block;
+    margin-bottom: 8px;
+}
+
+.scheda-note p {
+    margin-bottom: 0;
+}
+
+.scheda-id {
+    margin-top: 30px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+
+    font-size: 11px;
+    color: #999;
+}
+
+
+/* =========================
+   STATI
+   ========================= */
+
+.sync-pill {
+    display: inline-block;
+    padding: 6px 10px;
+    border-radius: 20px;
+    font-size: 13px;
+    background: #eee;
+}
+
+.sync-pill.online {
+    background: #e5f5e5;
+}
+
+.sync-pill.offline {
+    background: #f5e5e5;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 50px;
+    color: #777;
+}
+
+.loading {
+    text-align: center;
+    padding: 40px;
+    color: #777;
+}
+
+
+/* =========================
+   FOOTER
+   ========================= */
 
 footer {
     text-align: center;
     padding: 20px;
+    color: #777;
+}
+
+
+/* =========================
+   MOBILE
+   ========================= */
+
+@media (max-width: 700px) {
+
+    main {
+        padding: 15px;
+    }
+
+    .stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .libro {
+        flex-direction: column;
+    }
+
+    .libro-commerciale {
+        justify-content: flex-start;
+    }
+
+    .scheda-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .scheda {
+        padding: 20px;
+    }
+}.scheda-header {
+    display: flex;
+    gap: 25px;
+    margin-bottom: 25px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #ddd;
+}
+
+.scheda-cover {
+    width: 120px;
+    min-width: 120px;
+}
+
+.scheda-cover img {
+    width: 100%;
+    max-height: 180px;
+    object-fit: contain;
+    border-radius: 4px;
+}
+
+.scheda-titolo {
+    flex: 1;
+}
+
+.scheda-titolo h2 {
+    margin-bottom: 8px;
+}
+
+.scheda-stato {
+    display: inline-block;
+    padding: 5px 10px;
+    margin-bottom: 10px;
+    border-radius: 15px;
+    background: #eee;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.scheda-isbn {
+    font-family: monospace;
+    color: #777;
+    font-size: 13px;
+}
+
+.avviso-copie {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 15px;
+    margin-bottom: 25px;
+    border-left: 4px solid #d69e2e;
+    background: #fff8e5;
+    border-radius: 4px;
+}
+
+.avviso-copie strong {
+    color: #765600;
+}
+
+.avviso-copie small {
+    color: #777;
+}
+
+.scheda-variante {
+    margin-top: 18px;
+    padding: 15px;
+    background: #f5f5f5;
+    border-radius: 6px;
+}
+
+.scheda-variante strong {
+    display: block;
+    margin-bottom: 8px;
+}
+
+.scheda-variante p {
+    margin: 0;
+}
+
+.scheda-commerciale {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+.scheda-commerciale > div {
+    border: 1px solid #eee;
+    border-radius: 6px;
+    padding: 15px;
+}
+
+.scheda-commerciale strong {
+    display: block;
+    font-size: 12px;
+    color: #777;
+    margin-bottom: 8px;
+}
+
+.scheda-commerciale span {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.scheda-commerciale .margine {
+    background: #f0f7f0;
+}
+
+.scheda-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #ddd;
+}
+
+.scheda-modifica {
+    background: #222;
+    color: white;
+    border-color: #222;
+}
+
+.scheda-chiudi-btn {
+    background: white;
+}
+
+@media (max-width: 700px) {
+
+    .scheda-header {
+        flex-direction: column;
+    }
+
+    .scheda-cover {
+        width: 100px;
+        min-width: 100px;
+    }
+
+    .scheda-commerciale {
+        grid-template-columns: 1fr;
+    }
+
+    .scheda-actions {
+        flex-direction: column;
+    }
+
+    .scheda-actions button {
+        width: 100%;
+    }
+}.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+}
+
+.form-grid label,
+.form-full {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: bold;
+    color: #555;
+}
+
+.form-grid input,
+.form-grid select,
+.form-full textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: normal;
+    color: #222;
+}
+
+.form-full {
+    margin-top: 18px;
+}
+
+.form-full textarea {
+    resize: vertical;
+}
+
+@media (max-width: 700px) {
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
 }

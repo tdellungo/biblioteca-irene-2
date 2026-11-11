@@ -1,45 +1,122 @@
-<!DOCTYPE html>
+<!<!DOCTYPE html>
 <html lang="it">
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Biblioteca Irene 2.0</title>
     <link rel="stylesheet" href="src/css/stile.css">
 </head>
 
 <body>
 
-    <header>
-        <h1>Biblioteca Irene 2.0</h1>
-        <p>Catalogo digitale della biblioteca scolastica</p>
+    <header class="header">
+        <div>
+            <h1>Biblioteca Irene 2.0</h1>
+            <p>Catalogo e gestione della biblioteca</p>
+        </div>
+
+        <div id="sync-badge" class="sync-pill">
+            ● Connessione
+        </div>
     </header>
 
     <main>
 
-        <section class="ricerca">
-            <h2>Ricerca nel catalogo</h2>
-            <input type="text" placeholder="Cerca un libro...">
-            <button>Cerca</button>
+        <section class="stats">
+
+            <div class="stat-card">
+                <span>Libri</span>
+                <strong id="stat-total">—</strong>
+            </div>
+
+            <div class="stat-card">
+                <span>Titoli</span>
+                <strong id="stat-titoli">—</strong>
+            </div>
+
+            <div class="stat-card">
+                <span>Investito</span>
+                <strong id="stat-invest">€—</strong>
+            </div>
+
+            <div class="stat-card">
+                <span>Ceduti</span>
+                <strong id="stat-sold">—</strong>
+            </div>
+
+            <div class="stat-card">
+                <span>Ricavi</span>
+                <strong id="stat-out">€—</strong>
+            </div>
+
         </section>
 
-        <section class="catalogo">
-            <h2>Libri presenti</h2>
 
-            <div class="libro">
-                <h3>La storia. Progettare il futuro</h3>
-                <p>Autori: Barbero, Frugoni, Sclarandis</p>
-                <p>Materia: Storia</p>
+        <section class="toolbar">
+
+            <input
+                type="search"
+                id="search-filter"
+                placeholder="Cerca titolo, autore, editore..."
+            >
+
+            <div class="filters">
+
+                <button
+                    class="filter-btn active"
+                    data-filter="all">
+                    Tutti
+                </button>
+
+                <button
+                    class="filter-btn"
+                    data-filter="in">
+                    In collezione
+                </button>
+
+                <button
+                    class="filter-btn"
+                    data-filter="vendita">
+                    In vendita
+                </button>
+
+                <button
+                    class="filter-btn"
+                    data-filter="out">
+                    Ceduti
+                </button>
+
+            </div>
+
+            <button type="button" id="btn-esporta-catalogo" style="margin-top:12px;margin-right:8px;padding:10px 14px;cursor:pointer">
+                Esporta catalogo (JSON)
+            </button>
+
+            <button type="button" id="btn-controllo-coerenza" style="margin-top:12px;padding:10px 14px;cursor:pointer">
+                🔎 Controllo coerenza edizioni
+            </button>
+
+        </section>
+
+
+        <section class="catalogo">
+
+            <div class="loading">
+                Caricamento catalogo...
             </div>
 
         </section>
 
     </main>
 
+
     <footer>
-        <p>Biblioteca Irene 2.0 - Liceo Artistico G.C. Argan</p>
+        Biblioteca Irene 2.0 · Liceo Artistico G.C. Argan
     </footer>
 
-    <script src="src/js/app.js"></script>
+
+    <script type="module" src="src/js/app.js"></script>
 
 </body>
 
