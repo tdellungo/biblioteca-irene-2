@@ -577,3 +577,34 @@ footer {
     }
 
 }
+/* Cruscotto: struttura senza dati o calcoli, indipendente dai filtri del catalogo. */
+[hidden] { display: none !important; }
+.vista-nav, .cruscotto-nav { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+.vista-nav button, .cruscotto-nav button {
+    min-height: 44px; padding: 10px 18px; border: 1px solid #bcc6d0;
+    border-radius: 6px; background: white; color: #243746; cursor: pointer;
+}
+.vista-nav button[aria-pressed="true"], .cruscotto-nav button[aria-pressed="true"] {
+    background: #243746; color: white; border-color: #243746;
+}
+.vista-nav button:focus-visible, .cruscotto button:focus-visible,
+.cruscotto input:focus-visible, .cruscotto select:focus-visible {
+    outline: 3px solid #176da1; outline-offset: 3px;
+}
+.cruscotto, .cruscotto * { box-sizing: border-box; }
+.cruscotto h2 { margin-top: 0; }
+.cruscotto p { line-height: 1.5; }
+.controlli-periodo { display: flex; flex-wrap: wrap; gap: 16px; padding: 16px; background: #f3f5f7; border-radius: 8px; }
+.controlli-periodo label { display: flex; flex-direction: column; gap: 8px; flex: 1 1 180px; min-width: 0; }
+.controlli-periodo input, .controlli-periodo select { width: 100%; min-width: 0; min-height: 44px; padding: 8px; font: inherit; }
+#stato-periodo { flex-basis: 100%; margin: 0; color: #46535f; }
+.cruscotto-pannello { padding: 20px 0 0; margin-bottom: 0; }
+.cruscotto-griglia { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 16px; }
+.cruscotto-card { min-width: 0; border: 1px solid #d7dce1; border-radius: 8px; padding: 16px; }
+.cruscotto-card h4 { margin: 0; font-size: 1.1rem; }
+.grafico-futuro { display: grid; place-items: center; min-height: 180px; padding: 16px; text-align: center; border: 1px dashed #8795a1; background: #f8f9fa; color: #46535f; border-radius: 6px; }
+@media (max-width: 600px) {
+    .cruscotto { padding: 16px; }
+    .vista-nav button, .cruscotto-nav button { flex: 1 1 auto; }
+    .controlli-periodo label { flex-basis: 100%; }
+}

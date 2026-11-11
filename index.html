@@ -1,4 +1,4 @@
-<!<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="it">
 
 <head>
@@ -22,6 +22,11 @@
     </header>
 
     <main>
+        <nav class="vista-nav" aria-label="Navigazione principale">
+            <button type="button" data-vista="catalogo" aria-controls="vista-catalogo" aria-pressed="true">Catalogo</button>
+            <button type="button" data-vista="cruscotto" aria-controls="vista-cruscotto" aria-pressed="false">Cruscotto</button>
+        </nav>
+        <div id="vista-catalogo">
 
         <section class="stats">
 
@@ -109,6 +114,98 @@
 
         </section>
 
+        </div>
+        <section id="vista-cruscotto" class="cruscotto" hidden aria-labelledby="titolo-cruscotto">
+            <h2 id="titolo-cruscotto" tabindex="-1">Cruscotto</h2>
+            <p>Struttura in preparazione: indicatori, grafici e suggerimenti non sono ancora disponibili. Nessun dato economico è calcolato in questa sezione.</p>
+            <nav class="cruscotto-nav" aria-label="Sezioni del cruscotto">
+                <button type="button" data-pannello="economia" aria-controls="pannello-economia" aria-pressed="true">Economia</button>
+                <button type="button" data-pannello="magazzino" aria-controls="pannello-magazzino" aria-pressed="false">Magazzino</button>
+                <button type="button" data-pannello="opportunita" aria-controls="pannello-opportunita" aria-pressed="false">Opportunità</button>
+            </nav>
+            <form id="controlli-periodo" class="controlli-periodo" aria-label="Periodo e confronto" novalidate>
+                <label>Periodo
+                    <select id="periodo-tipo">
+                        <option value="settimana">Settimana</option>
+                        <option value="mese" selected>Mese</option>
+                        <option value="anno">Anno</option>
+                        <option value="personalizzato">Intervallo personalizzato</option>
+                    </select>
+                </label>
+                <label data-periodo="settimana" hidden>Settimana <input type="week" id="periodo-settimana" disabled required></label>
+                <label data-periodo="mese">Mese <input type="month" id="periodo-mese" required></label>
+                <label data-periodo="anno" hidden>Anno <input type="number" id="periodo-anno" min="1" max="9999" step="1" disabled required></label>
+                <label data-periodo="personalizzato" hidden>Dal <input type="date" id="periodo-dal" disabled required></label>
+                <label data-periodo="personalizzato" hidden>Al <input type="date" id="periodo-al" disabled required></label>
+                <label>Confronto
+                    <select id="periodo-confronto">
+                        <option value="precedente">Periodo precedente</option>
+                        <option value="anno-precedente">Stesso periodo dell’anno precedente</option>
+                    </select>
+                </label>
+                <p id="stato-periodo" role="status">Controlli predisposti: la selezione non applica ancora filtri o calcoli.</p>
+            </form>
+            <section id="pannello-economia" class="cruscotto-pannello" aria-labelledby="titolo-economia">
+                <h3 id="titolo-economia">Economia</h3>
+                <div class="cruscotto-griglia">
+                    <article class="cruscotto-card" aria-labelledby="grafico-economia-0">
+                        <h4 id="grafico-economia-0">Ricavi e acquisti</h4>
+                        <p>Confronto dei movimenti economici del periodo.</p>
+                        <div class="grafico-futuro"><span>Grafico non ancora disponibile</span></div>
+                    </article>
+                    <article class="cruscotto-card" aria-labelledby="grafico-economia-1">
+                        <h4 id="grafico-economia-1">Margini e ROI</h4>
+                        <p>Indicatori di redditività delle copie cedute.</p>
+                        <div class="grafico-futuro"><span>Grafico non ancora disponibile</span></div>
+                    </article>
+                    <article class="cruscotto-card" aria-labelledby="grafico-economia-2">
+                        <h4 id="grafico-economia-2">Flussi di cassa</h4>
+                        <p>Entrate e uscite, distinte dall’utile lordo realizzato.</p>
+                        <div class="grafico-futuro"><span>Grafico non ancora disponibile</span></div>
+                    </article>
+                </div>
+            </section>
+            <section id="pannello-magazzino" class="cruscotto-pannello" aria-labelledby="titolo-magazzino" hidden>
+                <h3 id="titolo-magazzino">Magazzino</h3>
+                <div class="cruscotto-griglia">
+                    <article class="cruscotto-card" aria-labelledby="grafico-magazzino-0">
+                        <h4 id="grafico-magazzino-0">Capitale immobilizzato</h4>
+                        <p>Costo delle copie ancora possedute.</p>
+                        <div class="grafico-futuro"><span>Grafico non ancora disponibile</span></div>
+                    </article>
+                    <article class="cruscotto-card" aria-labelledby="grafico-magazzino-1">
+                        <h4 id="grafico-magazzino-1">Anzianità delle copie</h4>
+                        <p>Distribuzione delle giacenze per durata.</p>
+                        <div class="grafico-futuro"><span>Grafico non ancora disponibile</span></div>
+                    </article>
+                    <article class="cruscotto-card" aria-labelledby="grafico-magazzino-2">
+                        <h4 id="grafico-magazzino-2">Tempi di vendita</h4>
+                        <p>Tempi effettivi delle vendite con date documentate.</p>
+                        <div class="grafico-futuro"><span>Grafico non ancora disponibile</span></div>
+                    </article>
+                </div>
+            </section>
+            <section id="pannello-opportunita" class="cruscotto-pannello" aria-labelledby="titolo-opportunita" hidden>
+                <h3 id="titolo-opportunita">Opportunità</h3>
+                <div class="cruscotto-griglia">
+                    <article class="cruscotto-card" aria-labelledby="grafico-opportunita-0">
+                        <h4 id="grafico-opportunita-0">Libri invenduti</h4>
+                        <p>Analisi delle copie ancora disponibili.</p>
+                        <div class="grafico-futuro"><span>Grafico non ancora disponibile</span></div>
+                    </article>
+                    <article class="cruscotto-card" aria-labelledby="grafico-opportunita-1">
+                        <h4 id="grafico-opportunita-1">Priorità commerciali</h4>
+                        <p>Individuazione delle copie da esaminare.</p>
+                        <div class="grafico-futuro"><span>Grafico non ancora disponibile</span></div>
+                    </article>
+                    <article class="cruscotto-card" aria-labelledby="grafico-opportunita-2">
+                        <h4 id="grafico-opportunita-2">Suggerimenti di prezzo</h4>
+                        <p>Spazio riservato alle future indicazioni commerciali.</p>
+                        <div class="grafico-futuro"><span>Grafico non ancora disponibile</span></div>
+                    </article>
+                </div>
+            </section>
+        </section>
     </main>
 
 
@@ -118,6 +215,7 @@
 
 
     <script type="module" src="src/js/app.js"></script>
+    <script type="module" src="src/js/cruscotto.mjs"></script>
 
 </body>
 
