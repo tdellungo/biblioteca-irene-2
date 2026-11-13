@@ -28,7 +28,10 @@ export function periodi({tipo, valore, dal, al, confronto='precedente'}, oggi=og
     const inCorso=fine>oggi;
     let effettiva=inCorso?oggi:fine;
     if(confronto==='anno-precedente') {primaInizio=annoPrima(inizio);primaFine=annoPrima(fine);}
-    if(inCorso) {
+    if(inCorso && tipo==='anno') {
+        // Stessa data civile: gli anni bisestili non devono spostare il confronto.
+        primaFine=annoPrima(effettiva);
+    } else if(inCorso) {
         const avanzamento=Math.min(distanza(inizio,effettiva),distanza(primaInizio,primaFine));
         effettiva=sposta(inizio,avanzamento);
         primaFine=sposta(primaInizio,avanzamento);
@@ -52,7 +55,7 @@ export function movimenti(copie) {
     }
     return {eventi,qualita};
 }
-export function riepilogo(eventi, periodo) {
+export function riepilogo(eventi, periodo, {parziali=false}={}) {
     const dentro=eventi.filter(e=>e.data&&e.data>=periodo.inizio&&e.data<=periodo.fine);
     const acquisti=dentro.filter(e=>e.tipo==='acquisto'),vendite=dentro.filter(e=>e.tipo==='cessione');
     const totale=righe=>({noto:righe.reduce((s,e)=>s+(e.valore??0),0),mancanti:righe.filter(e=>e.valore===null).length});
@@ -60,23 +63,33 @@ export function riepilogo(eventi, periodo) {
     const valide=vendite.filter(e=>e.valore!==null&&e.costo!==null);
     const costo=valide.reduce((s,e)=>s+e.costo,0), margine=valide.reduce((s,e)=>s+e.valore-e.costo,0);
     const mancanti=vendite.length-valide.length;
-    return {ricavi:r.mancanti?null:r.noto,acquisti:a.mancanti?null:a.noto,
+    const risultato = {ricavi:r.mancanti?null:r.noto,acquisti:a.mancanti?null:a.noto,
         margine:mancanti?null:margine,roi:mancanti||costo===0?null:margine/costo*100,
         cassa:a.mancanti||r.mancanti?null:r.noto-a.noto,
         noti:{ricavi:r.noto,acquisti:a.noto,margine,cassa:r.noto-a.noto},
         mancanti:{ricavi:r.mancanti,acquisti:a.mancanti,margine:mancanti},
         numero:dentro.length,convenzionali:dentro.filter(e=>e.convenzionale).length};
+    risultato.mancanti.roi=mancanti;
+    risultato.mancanti.cassa=a.mancanti+r.mancanti;
+    if(parziali) {
+        if(r.mancanti && vendite.some(e=>e.valore!==null)) risultato.ricavi=r.noto;
+        if(a.mancanti && acquisti.some(e=>e.valore!==null)) risultato.acquisti=a.noto;
+        if(mancanti && valide.length) risultato.margine=margine;
+        if(costo>0) risultato.roi=margine/costo*100;
+        if(risultato.mancanti.cassa && dentro.some(e=>e.valore!==null)) risultato.cassa=risultato.noti.cassa;
+    }
+    return risultato;
 }
 export function differenza(a,b) {
     if(a===null||b===null) return {assoluta:null,percentuale:null};
     return {assoluta:a-b,percentuale:b===0?null:(a-b)/Math.abs(b)*100};
 }
-export function serie(eventi, periodo) {
+export function serie(eventi, periodo, {mensile=false,parziali=false}={}) {
     const giorni=distanza(periodo.inizio,periodo.fine), gruppi=new Map();
     for(let g=periodo.inizio;g<=periodo.fine;) {
         let fine=g;
         if(giorni>730) fine=g.slice(0,4)+'-12-31';
-        else if(giorni>62) {
+        else if(mensile||giorni>62) {
             const d=new Date(g+'T00:00:00Z');
             fine=iso(new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth()+1,0)));
         }
@@ -84,7 +97,7 @@ export function serie(eventi, periodo) {
         gruppi.set(g,{inizio:g,fine});
         g=sposta(fine,1);
     }
-    return [...gruppi.values()].map(p=>({...p,...riepilogo(eventi,p)}));
+    return [...gruppi.values()].map(p=>({...p,...riepilogo(eventi,p,{parziali})}));
 }
 export function corrisponde(copia,filtro) {
     if(!filtro) return true;

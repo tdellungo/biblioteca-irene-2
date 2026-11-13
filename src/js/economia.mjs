@@ -45,13 +45,13 @@ function grafico(titolo,righe,k) {
     const max=Math.max(1,...righe.map(r=>Math.abs(r.valore??0)));
     for(const r of righe) {
         const button=document.createElement('button');button.type='button';button.className='barra-riga';
-        const testo=`${r.etichetta}: ${formato(r.valore,k)} · ${r.inizio} / ${r.fine}`;
+        const testo=`${r.etichetta}: ${formato(r.valore,k)}${r.parziale?' · parziale':''} · ${r.inizio} / ${r.fine}`;
         button.title=testo;button.setAttribute('aria-label',testo);
         const label=document.createElement('span');label.textContent=r.etichetta;
         const pista=document.createElement('span');pista.className='barra-pista';
         const barra=document.createElement('span');barra.className='barra-valore'+(r.valore<0?' negativa':'');
         barra.style.width=`${r.valore===null?0:Math.abs(r.valore)/max*50}%`;pista.append(barra);
-        const valore=document.createElement('strong');valore.textContent=formato(r.valore,k);
+        const valore=document.createElement('strong');valore.textContent=formato(r.valore,k)+(r.parziale?' · parziale':'');
         button.append(label,pista,valore);
         button.addEventListener('click',()=>seleziona(r.inizio,r.fine,tipoMovimento(r.k||k)));
         lista.append(button);
@@ -69,28 +69,32 @@ export function aggiornaEconomia() {
     try {p=periodi({tipo:$('periodo-tipo').value,valore:$('periodo-'+$('periodo-tipo').value)?.value,
         dal:$('periodo-dal').value,al:$('periodo-al').value,confronto:$('periodo-confronto').value});}
     catch(e){$('copertura-economia').textContent=e.message;return;}
-    const {eventi,qualita}=movimenti(copie),a=riepilogo(eventi,p.attuale),b=riepilogo(eventi,p.precedente);
-    $('stato-periodo').textContent=`Periodo ${p.attuale.inizio} / ${p.attuale.fine}; confronto ${p.precedente.inizio} / ${p.precedente.fine}${p.inCorso?' (periodi limitati allo stesso avanzamento in giorni)':''}.`;
+    const annuale=$('periodo-tipo').value==='anno';
+    const opzioni={parziali:annuale,mensile:annuale};
+    const {eventi,qualita}=movimenti(copie),a=riepilogo(eventi,p.attuale,opzioni),b=riepilogo(eventi,p.precedente,opzioni);
+    $('stato-periodo').textContent=`Periodo ${p.attuale.inizio} / ${p.attuale.fine}; confronto ${p.precedente.inizio} / ${p.precedente.fine}${p.inCorso?(annuale?' · Anno in corso — dati parziali (confronto alla stessa data dell’anno precedente)':' (periodi limitati allo stesso avanzamento in giorni)'):''}.`;
     $('copertura-economia').textContent=`${a.numero} movimenti nel periodo, ${a.convenzionali} con data convenzionale da creato. Copertura catalogo: ${qualita.dateMancanti} movimenti senza data utilizzabile, ${qualita.convenzionali} date convenzionali, ${qualita.importiMancanti} importi mancanti/non validi. ${qualita.dateMancanti?'Totali con copertura storica incompleta: movimenti non databili esclusi.':'La copertura descrive solo i documenti presenti; non certifica lo storico reale.'} Gli importi ignoti non diventano zero.`;
     for(const k of Object.keys(nomi)) {
         const card=document.createElement('article');card.className='cruscotto-card';
         const titolo=document.createElement('h4');titolo.textContent=nomi[k];
-        const valore=document.createElement('strong');valore.textContent=formato(a[k],k);
-        const delta=differenza(a[k],b[k]);
+        const valore=document.createElement('strong');valore.textContent=formato(a[k],k)+(annuale&&a[k]!==null&&a.mancanti[k]?' · Totale parziale noto':'');
+        const delta=differenza(annuale&&a.mancanti[k]?null:a[k],annuale&&b.mancanti[k]?null:b[k]);
         const confronto=document.createElement('p');
-        confronto.textContent=`Confronto: ${formato(b[k],k)}. Differenza: ${delta.assoluta===null?'non calcolabile':numero(delta.assoluta)+(k==='roi'?' punti percentuali':' €')}; variazione: ${delta.percentuale===null?'non calcolabile (base zero o dato incompleto)':numero(delta.percentuale)+'%'}.`;
+        confronto.textContent=`Confronto: ${formato(b[k],k)}${annuale&&b.mancanti[k]?' (dati incompleti)':''}. Differenza: ${delta.assoluta===null?'non calcolabile':numero(delta.assoluta)+(k==='roi'?' punti percentuali':' €')}; variazione: ${delta.percentuale===null?'non calcolabile (base zero o dato incompleto)':numero(delta.percentuale)+'%'}.`;
         card.append(titolo,valore,confronto);
-        if(k!=='roi'&&a[k]===null) {const nota=document.createElement('p');nota.textContent=`Totale parziale noto: ${formato(a.noti[k],k)}. Dati mancanti: il totale completo non è determinabile.`;card.append(nota);}
+        if(annuale&&a.mancanti[k]) {const nota=document.createElement('p');nota.textContent=`${a.mancanti[k]} movimenti con ${k==='margine'||k==='roi'?'prezzo di cessione o costo di acquisto':'importo'} mancante/non valido. ${a[k]===null?'Nessun contributo sufficiente per determinare l’indicatore.':'Calcolo limitato ai contributi noti; confronto numerico sospeso.'}`;card.append(nota);}
+        if(!annuale&&k!=='roi'&&a[k]===null) {const nota=document.createElement('p');nota.textContent=`Totale parziale noto: ${formato(a.noti[k],k)}. Dati mancanti: il totale completo non è determinabile.`;card.append(nota);}
         if(k==='roi'&&a.roi===null){const nota=document.createElement('p');nota.textContent='ROI non definito con costo totale nullo, nessuna vendita o dati incompleti.';card.append(nota);}
         indicatori.append(card);
     }
-    const attuale=serie(eventi,p.attuale),precedente=serie(eventi,p.precedente);
-    grafico('Acquisti e ricavi nel tempo',attuale.flatMap(r=>['acquisti','ricavi'].map(k=>({...r,k,valore:r[k],etichetta:`${r.inizio} · ${nomi[k]}`}))),'ricavi');
+    const attuale=serie(eventi,p.attuale,opzioni),precedente=serie(eventi,p.precedente,opzioni);
+    grafico('Acquisti e ricavi nel tempo',attuale.flatMap(r=>['acquisti','ricavi'].map(k=>({...r,k,parziale:annuale&&r.mancanti[k]>0,valore:r[k],etichetta:`${r.inizio} · ${nomi[k]}`}))),'ricavi');
     for(const k of ['margine','roi','cassa']) {
         const righe=attuale.map(r=>{
             const cumulativo=k==='cassa'||k==='roi';
             const inizio=cumulativo?p.attuale.inizio:r.inizio;
-            return {...r,inizio,valore:cumulativo?riepilogo(eventi,{inizio,fine:r.fine})[k]:r[k],etichetta:r.fine};
+            const dati=cumulativo?riepilogo(eventi,{inizio,fine:r.fine},opzioni):r;
+            return {...r,inizio,parziale:annuale&&dati.mancanti[k]>0,valore:dati[k],etichetta:r.fine};
         });
         grafico(k==='cassa'?'Saldo di cassa cumulativo (dal principio del periodo)':k==='roi'?'ROI cumulativo realizzato':nomi[k],righe,k);
     }
@@ -99,7 +103,8 @@ export function aggiornaEconomia() {
     const righeConfronto=(righe,periodo,etichetta)=>righe.map(r=>{
         const cumulativo=k==='roi'||k==='cassa';
         const inizio=cumulativo?periodo.inizio:r.inizio;
-        return {...r,inizio,k,valore:cumulativo?riepilogo(eventi,{inizio,fine:r.fine})[k]:r[k],etichetta:`${etichetta} · ${r.fine}`};
+        const dati=cumulativo?riepilogo(eventi,{inizio,fine:r.fine},opzioni):r;
+        return {...r,inizio,k,parziale:annuale&&dati.mancanti[k]>0,valore:dati[k],etichetta:`${etichetta} · ${r.fine}`};
     });
     grafico('Confronto temporale',[
         ...righeConfronto(attuale,p.attuale,'Attuale'),

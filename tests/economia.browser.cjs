@@ -73,9 +73,45 @@ await p.locator('#grafici-economia article').last().getByRole('button',{name:/Co
 assert.equal(await p.locator('.libro').count(),1);
 assert.match(await p.locator('.libro').innerText(),/Positiva/);
 await p.getByRole('button',{name:'Cruscotto',exact:true}).click();
+// Anno corrente, grafici mensili, confronto e ritorno al mese senza alterazioni.
+await p.locator('#periodo-tipo').selectOption('anno');
+assert.match(await p.locator('#stato-periodo').innerText(),/Anno in corso — dati parziali/);
+assert.match(await p.locator('#stato-periodo').innerText(),/2025-01-01 \/ 2025-02-15/);
+assert.equal(await card('Acquisti').locator('strong').innerText(),'30 €');
+assert.equal(await card('Saldo di cassa').locator('strong').innerText(),'15 €');
+assert.equal(await p.locator('#grafici-economia article').first().getByRole('button').count(),4);
+assert.equal(await p.locator('#grafici-economia article').nth(1).getByRole('button').count(),2);
+assert.match(await p.locator('#grafici-economia article').first().innerText(),/2026-01-01/);
+for(const width of [1280,390,320]) {
+ await p.setViewportSize({width,height:850});
+ assert.equal(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+}
+await p.locator('#periodo-anno').fill('2025');
+assert.match(await p.locator('#stato-periodo').innerText(),/2025-01-01 \/ 2025-12-31/);
+assert.doesNotMatch(await p.locator('#stato-periodo').innerText(),/Anno in corso/);
+assert.equal(await card('Ricavi').locator('strong').innerText(),'0 €');
+assert.equal(await card('ROI').locator('strong').innerText(),'Non calcolabile');
+assert.equal(await p.locator('#grafici-economia article').first().getByRole('button').count(),24);
+await p.locator('#periodo-anno').fill('2026');
+await p.locator('#periodo-tipo').selectOption('mese');
+assert.equal(await card('Acquisti').locator('strong').innerText(),'20 €');
+assert.equal(await card('Saldo di cassa').locator('strong').innerText(),'25 €');
+assert.equal(await p.locator('#grafici-economia article').first().getByRole('button').count(),30);
 await p.evaluate(()=>document.dispatchEvent(new CustomEvent('irenus:catalogo',{detail:[{id:'incompleta',stato:'ceduto',creato:'2026-02-01',prezzoCessione:10}]})));
 assert.equal(await card('Margine lordo realizzato').locator('strong').innerText(),'Non calcolabile');
 assert.match(await p.locator('#copertura-economia').innerText(),/2 date convenzionali/);
+await p.locator('#periodo-tipo').selectOption('anno');
+assert.equal(await card('Ricavi').locator('strong').innerText(),'10 €');
+assert.equal(await card('Margine lordo realizzato').locator('strong').innerText(),'Non calcolabile');
+assert.match(await card('Margine lordo realizzato').innerText(),/costo di acquisto mancante/);
+await p.evaluate(()=>document.dispatchEvent(new CustomEvent('irenus:catalogo',{detail:[
+ {id:'nota',stato:'ceduto',dataAcquisto:'2026-01-01',dataCessione:'2026-02-01',prezzoAcquisto:10,prezzoCessione:30},
+ {id:'ignota',stato:'ceduto',dataAcquisto:'2026-01-01',dataCessione:'2026-02-01'}
+]})));
+assert.equal(await card('Ricavi').locator('strong').innerText(),'30 € · Totale parziale noto');
+assert.equal(await card('ROI').locator('strong').innerText(),'200 % · Totale parziale noto');
+assert.match(await card('Ricavi').innerText(),/Differenza: non calcolabile/);
+assert.match(await p.locator('#grafici-economia').innerText(),/parziale/);
 assert.equal(await p.evaluate(()=>scritture.length),0);
 assert.equal(await p.evaluate(()=>letture),letture);
 assert.deepEqual(errors,[]);

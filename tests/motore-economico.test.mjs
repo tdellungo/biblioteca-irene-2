@@ -50,3 +50,38 @@ test('mese in corso più lungo del precedente: confronto limitato a uguale numer
  assert.deepEqual(p.attuale,{inizio:'2026-03-01',fine:'2026-03-28'});
  assert.deepEqual(p.precedente,{inizio:'2026-02-01',fine:'2026-02-28'});
 });
+
+test('anno corrente fino a oggi, confronto civile omogeneo anche bisestile',()=>{
+ for(const confronto of ['precedente','anno-precedente']) {
+  for(const [oggi,prima] of [['2024-02-29','2023-02-28'],['2024-03-15','2023-03-15'],['2025-03-15','2024-03-15'],['2026-01-01','2025-01-01']]) {
+   const p=periodi({tipo:'anno',valore:oggi.slice(0,4),confronto},oggi);
+   assert.equal(p.attuale.fine,oggi);assert.equal(p.precedente.fine,prima);assert.equal(p.inCorso,true);
+  }
+ }
+});
+test('anno precedente completo, nessun movimento e grafico sempre mensile',()=>{
+ const p=periodi({tipo:'anno',valore:'2025'},'2026-02-15');
+ assert.deepEqual(p,{attuale:{inizio:'2025-01-01',fine:'2025-12-31'},precedente:{inizio:'2024-01-01',fine:'2024-12-31'},inCorso:false});
+ const r=riepilogo([],p.attuale,{parziali:true});
+ for(const k of ['ricavi','acquisti','margine','cassa']) assert.equal(r[k],0);
+ assert.equal(r.roi,null);assert.equal(serie([],p.attuale,{mensile:true}).length,12);
+ const corrente=periodi({tipo:'anno',valore:'2026'},'2026-02-15');
+ assert.deepEqual(serie([],corrente.attuale,{mensile:true}).map(r=>[r.inizio,r.fine]),[['2026-01-01','2026-01-31'],['2026-02-01','2026-02-15']]);
+});
+test('diagnosi annuale: movimento incompleto storico non invalida i contributi noti',()=>{
+ const e=movimenti([copia('nota',10,30),copia('ignota',null,null),copia('senza-data',5,9,{dataAcquisto:null,dataCessione:null}),copia('convenzionale',5,10,{dataAcquisto:null,dataCessione:null,creato:'2026-01-01'})]);
+ const p=periodi({tipo:'anno',valore:'2026'},'2026-02-15').attuale;
+ assert.equal(riepilogo(e.eventi,p).ricavi,null); // comportamento originario
+ const r=riepilogo(e.eventi,p,{parziali:true});
+ assert.equal(r.ricavi,40);assert.equal(r.acquisti,15);assert.equal(r.margine,25);assert.equal(r.cassa,25);assert.equal(r.roi,25/15*100);
+ assert.equal(r.mancanti.ricavi,1);assert.equal(r.mancanti.roi,1);assert.equal(r.convenzionali,2);assert.equal(e.qualita.dateMancanti,2);
+ const ignoti=riepilogo(movimenti([copia('ignota',null,null)]).eventi,p,{parziali:true});
+ for(const k of ['ricavi','acquisti','margine','roi','cassa']) assert.equal(ignoti[k],null);
+});
+test('serie annuale: aggregati mensili noti e parziali, esclusione futuro',()=>{
+ const e=movimenti([copia('a',10,30),copia('b',null,5),copia('futuro',100,200,{dataAcquisto:'2026-03-01',dataCessione:'2026-03-02'})]).eventi;
+ const p=periodi({tipo:'anno',valore:'2026'},'2026-02-15');
+ const righe=serie(e,p.attuale,{mensile:true,parziali:true});
+ assert.equal(righe.length,2);assert.equal(righe[0].acquisti,10);assert.equal(righe[0].mancanti.acquisti,1);
+ assert.equal(righe[1].ricavi,35);assert.equal(righe[1].margine,20);assert.equal(righe[1].mancanti.margine,1);
+});
